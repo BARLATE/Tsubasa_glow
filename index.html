@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TSUBASA育成RPG - Firebase対応版</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(#ffecec, #fff);
+      text-align: center;
+      padding: 30px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #d6336c;
+      margin-bottom: 10px;
+    }
+    .level {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #ff5e99;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #tsubasaImage {
+      width: 180px;
+      border-radius: 20px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="title" id="username">TSUBASAの育成中！</div>
+  <img src="https://example.com/tsubasa-sticker.png" alt="TSUBASA" id="tsubasaImage">
+  <div class="level" id="levelInfo">レベル: 1（経験値: 0/5）</div>
+  <button onclick="giveDrink()">お酒をあげる</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAbv_yM8FT27BH75z9dPiX-ELQwwsdBjoU",
+      authDomain: "tsubasa-7feab.firebaseapp.com",
+      projectId: "tsubasa-7feab",
+      storageBucket: "tsubasa-7feab.appspot.com",
+      messagingSenderId: "971014528300",
+      appId: "1:971014528300:web:xxxxxxxxxxxxxx"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let exp = 0;
+    let level = 1;
+    let userId = "";
+
+    async function saveUserData() {
+      if (!userId) return;
+      await setDoc(doc(db, "users", userId), {
+        exp: exp,
+        level: level
+      });
+    }
+
+    async function loadUserData() {
+      if (!userId) return;
+      const docRef = doc(db, "users", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        exp = data.exp;
+        level = data.level;
+      } else {
+        exp = 0;
+        level = 1;
+      }
+      document.getElementById("levelInfo").innerText = `レベル: ${level}（経験値: ${exp}/5）`;
+    }
+
+    async function giveDrink() {
+      exp++;
+      if (exp >= 5) {
+        level++;
+        exp = 0;
+        alert("TSUBASAがレベルアップしたよ！");
+      }
+      document.getElementById("levelInfo").innerText = `レベル: ${level}（経験値: ${exp}/5）`;
+      await saveUserData();
+    }
+
+    window.onload = async function () {
+      await liff.init({ liffId: "2007447664-y5AWe2XZ" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+      const profile = await liff.getProfile();
+      userId = profile.userId;
+      document.getElementById("username").innerText = `${profile.displayName}がTSUBASAを育成中！`;
+      await loadUserData();
+    };
+  </script>
+</body>
+</html>
