@@ -13,7 +13,7 @@ description: YouTube動画の文字起こし(字幕)を取得して要約する�
    python3 .claude/skills/youtube-summary/scripts/fetch_transcript.py "<URL または動画ID>" --lang ja,en > /tmp/transcript.txt
    ```
 
-   - 初回は依存パッケージが必要: `pip install youtube-transcript-api`
+   - 初回は依存パッケージが必要: `pip install youtube-transcript-api yt-dlp`(クラウド環境などで YouTube に弾かれた場合は自動で yt-dlp に切り替わる)
    - `--lang` は優先順。指定言語がなければ利用可能な字幕(自動生成含む)を使う。
    - 出力は `[mm:ss] テキスト` 形式。先頭行に動画ID・言語・自動生成かどうかが入る。
    - 字幕が無い/取得できない場合は、その旨をユーザーに伝えて終了する(内容をでっち上げない)。
